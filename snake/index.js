@@ -7,7 +7,7 @@ const state = {
 	gameInterval: null,
 	food: [5,5],
 	snake: {
-	 	nextDirection: [[1, 0]],
+	 	nextDirection: [1, 0],
 		body: [ [10,5], [10,6], [10,7], [10,8]],
 	}
 }
@@ -23,6 +23,7 @@ const startButton = document.createElement("BUTTON")
 //establisssh the state of my board
 function buildBoard() {
 	//building bare bone board
+	state.board = []
 	for(let rowIndex = 0; rowIndex < 20; rowIndex++) {
 		const row = []
 		for(let colIndex = 0; colIndex < 20; colIndex++) {
@@ -41,7 +42,6 @@ function buildBoard() {
 function setSnakeInBoard() {
 	for(let i = 0; i < state.snake.body.length; i++) {
 		const currentSnakeSegment = state.snake.body[i]; //[10, 5]
-		console.log(currentSnakeSegment);
 		const currentSegmentRowIndex = currentSnakeSegment[0];
 		const currentSegmentColIndex = currentSnakeSegment[1];
 		state.board[currentSegmentRowIndex][currentSegmentColIndex] = "snake";
@@ -55,15 +55,10 @@ function setFoodInBoard() {
 
 function moveSnake() {
 	const snakeHead = state.snake.body[0];
-	console.log(snakeHead[0])
 	const newSnakeHeadRowIdx = snakeHead[0] + state.snake.nextDirection[0] ;
 	const newSnakeHeadColIdx = snakeHead[1] + state.snake.nextDirection[1] ;
-	console.log(state.snake.nextDirection);
-	console.log(newSnakeHeadColIdx);
-	console.log(newSnakeHeadColIdx);
-	console.log(snakeHead);
 	state.snake.body.unshift([newSnakeHeadRowIdx, newSnakeHeadColIdx]);
-	console.log(state.snake)
+	state.snake.body.pop();
 }
 
 
@@ -88,7 +83,7 @@ function bootstrap() {
 //Renders
 function renderBoard() {
 
-	//boardElement.innerHTML = "";
+	boardElement.innerHTML = "";
 	for(let row = 0; row < state.board.length; row++) {
 		//row element to append to the board
 		for(let col = 0; col < state.board[row].length; col++) {
@@ -112,10 +107,22 @@ startButton.addEventListener("click", function() {
 document.addEventListener("keydown", function(event) {
 	if(!state.gameInterval) {
 		state.gameInterval = setInterval(function () {
+			moveSnake();
+			buildBoard();
+			renderBoard();
 		}, 167);
+	}
+
+	if(event.key === "w" && state.snake.nextDirection[0] !== 1) {
+		state.snake.nextDirection = [-1, 0];
+	} else if (event.key === "a" && state.snake.nextDirection[1] !== 1) {
+		state.snake.nextDirection = [0, -1];
+	} else if (event.key === "s" && state.snake.nextDirection[0] !== -1) {
+		state.snake.nextDirection = [1, 0];
+	} else if (event.key === "d" && state.snake.nextDirection[1] !== -1) {
+		state.snake.nextDirection = [0, 1];
 	}
 })
 
 //Global Function call biznezz logic megalul
 bootstrap();
-moveSnake();
