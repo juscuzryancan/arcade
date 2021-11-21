@@ -1,13 +1,13 @@
 //State
 
 //make sure to establish default values within the sstate
-const state = {
+let state = {
 	score: 0,
 	board: [],
 	gameInterval: null,
 	food: [5,5],
 	snake: {
-	 	nextDirection: [1, 0],
+	 	nextDirection: [0, -1],
 		body: [ [10,5], [10,6], [10,7], [10,8]],
 	}
 }
@@ -17,6 +17,7 @@ const appElement = document.getElementById("app");
 const boardElement = document.createElement("div");
 const scoreElement = document.createElement("div")
 const startButton = document.createElement("BUTTON")
+const resetButton = document.createElement("BUTTON");
 
 //Other functions
 
@@ -72,9 +73,13 @@ function bootstrap() {
 	scoreElement.classList.add("score")
 	scoreElement.innerText = "Yo score is here: 0";
 
+	resetButton.classList.add("reset");
+	resetButton.innerText = "Yo reset here"
+
 	appElement.appendChild(scoreElement);
 	appElement.appendChild(boardElement);
 	appElement.appendChild(startButton);
+	appElement.appendChild(resetButton);
 
 	buildBoard();	
 	renderBoard();
@@ -99,10 +104,27 @@ function renderBoard() {
 	}
 }
 
+//Event Handlers
+function handleReset() {
+	state = {
+		score: 0,
+		board: [],
+		gameInterval: null,
+		food: [5, 5],
+		snake: {
+			nextDirection: [1, 0],
+			body: [[10, 5], [10, 6], [10, 7], [10, 8]],
+		}
+	}
+	bootstrap();
+}
+
 //Event Listeners
 startButton.addEventListener("click", function() {
 
 })
+
+resetButton.addEventListener("click", handleReset);
 
 document.addEventListener("keydown", function(event) {
 	if(!state.gameInterval) {
@@ -113,13 +135,13 @@ document.addEventListener("keydown", function(event) {
 		}, 167);
 	}
 
-	if(event.key === "w" && state.snake.nextDirection[0] !== 1) {
+	if((event.key === "w" || event.key == "ArrowUp") && state.snake.nextDirection[0] !== 1) {
 		state.snake.nextDirection = [-1, 0];
-	} else if (event.key === "a" && state.snake.nextDirection[1] !== 1) {
+	} else if ((event.key === "a" || event.key == "ArrowLeft") && state.snake.nextDirection[1] !== 1) {
 		state.snake.nextDirection = [0, -1];
-	} else if (event.key === "s" && state.snake.nextDirection[0] !== -1) {
+	} else if ((event.key === "s" || event.key == "ArrowDown") && state.snake.nextDirection[0] !== -1) {
 		state.snake.nextDirection = [1, 0];
-	} else if (event.key === "d" && state.snake.nextDirection[1] !== -1) {
+	} else if ((event.key === "d" || event.key == "ArrowRight") && state.snake.nextDirection[1] !== -1) {
 		state.snake.nextDirection = [0, 1];
 	}
 })
