@@ -21,6 +21,37 @@ const resetButton = document.createElement("BUTTON");
 
 //Other functions
 
+function checkSnakeAteItself() {
+	const [snakeHeadRow, snakeHeadCol] = state.snake.body[0]
+	for(let i = 1; i < state.snake.body.length; i++) {
+		const [rowIdx, colIdx] = state.snake.body[i]
+		if(snakeHeadRow === rowIdx && snakeHeadCol === colIdx) {
+			return true;
+		}
+	}
+	return false;
+}
+
+function checkBoundary() {
+	const {snake: {body}, board} = state;
+	const [snakeHeadRow, snakeHeadCol]  = body[0]
+	console.log("snake row", snakeHeadRow);
+	console.log("snake col", snakeHeadCol);
+	if (snakeHeadRow <= 0 || snakeHeadRow >= board.length || snakeHeadCol <= 0 || snakeHeadCol >= board.length) {
+		return true;
+	}
+	return false;
+}
+
+function checkFoodCollision() {
+	const {snake: {body, nextDirection}} = state;
+	const [snakeHeadRow, snakeHeadCol]  = body[0]
+	if(snakeHeadRow === state.food[0] && snakeHeadCol === state.food[1]) {
+		return true;
+	}
+	return false;
+}
+
 //establisssh the state of my board
 function buildBoard() {
 	//building bare bone board
@@ -41,7 +72,7 @@ function buildBoard() {
 
 
 function setSnakeInBoard() {
-	for(let i = 0; i < state.snake.body.length; i++) {
+	for (let i = 0; i < state.snake.body.length; i++) {
 		const currentSnakeSegment = state.snake.body[i]; //[10, 5]
 		const currentSegmentRowIndex = currentSnakeSegment[0];
 		const currentSegmentColIndex = currentSnakeSegment[1];
@@ -59,7 +90,9 @@ function moveSnake() {
 	const newSnakeHeadRowIdx = snakeHead[0] + state.snake.nextDirection[0] ;
 	const newSnakeHeadColIdx = snakeHead[1] + state.snake.nextDirection[1] ;
 	state.snake.body.unshift([newSnakeHeadRowIdx, newSnakeHeadColIdx]);
-	state.snake.body.pop();
+	if(!checkFoodCollision()) {
+		state.snake.body.pop();
+	}
 }
 
 
@@ -104,6 +137,10 @@ function renderBoard() {
 	}
 }
 
+function renderScore() {
+	scoreElement.innerText = `Yo score is here: ${state.score}`
+}
+
 //Event Handlers
 function handleReset() {
 	state = {
@@ -120,16 +157,17 @@ function handleReset() {
 }
 
 //Event Listeners
-startButton.addEventListener("click", function() {
-
-})
-
 resetButton.addEventListener("click", handleReset);
 
 document.addEventListener("keydown", function(event) {
 	if(!state.gameInterval) {
 		state.gameInterval = setInterval(function () {
 			moveSnake();
+
+			if(checkBoundary() || checkSnakeAteItself()){
+				clearInterval(state.gameInterval);
+			}
+			// checkSnakeAteItself();
 			buildBoard();
 			renderBoard();
 		}, 167);
