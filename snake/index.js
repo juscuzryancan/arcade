@@ -3,12 +3,13 @@
 //make sure to establish default values within the sstate
 let state = {
 	score: 0,
+	highscore: 0,
 	board: [],
 	gameInterval: null,
 	food: [5,5],
 	snake: {
-	 	nextDirection: [0, -1],
-		body: [ [10,5], [10,6], [10,7], [10,8]],
+	 	nextDirection: [0, 1],
+		body: [ [10,8], [10,7], [10,6], [10,5]],
 	}
 }
 
@@ -16,8 +17,8 @@ let state = {
 const appElement = document.getElementById("app");
 const boardElement = document.createElement("div");
 const scoreElement = document.createElement("div")
-const startButton = document.createElement("BUTTON")
 const resetButton = document.createElement("BUTTON");
+const snakeTitleElement = document.createElement("div");
 
 //Other functions
 
@@ -42,7 +43,7 @@ function checkBoundary() {
 }
 
 function checkFoodCollision() {
-	const {snake: {body, nextDirection}} = state;
+	const {snake: {body}} = state;
 	const [snakeHeadRow, snakeHeadCol]  = body[0]
 	if(snakeHeadRow === state.food[0] && snakeHeadCol === state.food[1]) {
 		return true;
@@ -83,7 +84,7 @@ function createNewFood() {
 	do {
 		newCol = Math.floor(Math.random() * (state.board.length - 1));
 		newRow = Math.floor(Math.random() * (state.board.length - 1));
-	} while (isFoodASnakeTile([newCol, newRow]));
+	} while (isFoodASnakeTile([newRow, newCol]));
 	state.food = [newRow, newCol];
 }
 
@@ -109,25 +110,25 @@ function moveSnake() {
 	if(!checkFoodCollision()) {
 		state.snake.body.pop();
 	}
+	state.keyPressed = false;
 }
 
 
 function bootstrap() {
 	//setting text into elements before inserting them into the dom
 	boardElement.classList.add("board")
-	
-	startButton.classList.add("start")
-	startButton.innerText = "Yo start here";
+
+	snakeTitleElement.innerText = "Welcome to Snake! Use the arrow keys to start";
 
 	scoreElement.classList.add("score")
-	scoreElement.innerText = "Yo score is here: 0";
+	scoreElement.innerText = `Yo score is here: ${state.score}  Yo highscore is here: ${state.highscore}`;
 
 	resetButton.classList.add("reset");
 	resetButton.innerText = "Yo reset here"
 
+	appElement.appendChild(snakeTitleElement);
 	appElement.appendChild(scoreElement);
 	appElement.appendChild(boardElement);
-	appElement.appendChild(startButton);
 	appElement.appendChild(resetButton);
 
 	buildBoard();	
@@ -154,19 +155,20 @@ function renderBoard() {
 }
 
 function renderScore() {
-	scoreElement.innerText = `Yo score is here: ${state.score}`
+	scoreElement.innerText = `Yo score is here: ${state.score}  Yo highscore is here: ${state.highscore}`;
 }
 
 //Event Handlers
 function handleReset() {
 	state = {
+		highscore: state.highscore,
 		score: 0,
 		board: [],
 		gameInterval: null,
 		food: [5, 5],
 		snake: {
-			nextDirection: [1, 0],
-			body: [[10, 5], [10, 6], [10, 7], [10, 8]],
+			nextDirection: [0, 1],
+			body: [ [10,8], [10,7], [10,6], [10,5]],
 		}
 	}
 	bootstrap();
@@ -182,25 +184,38 @@ document.addEventListener("keydown", function(event) {
 
 			if(checkFoodCollision()) {
 				createNewFood();
+				state.score++;
+				renderScore();
 			}
 
 			if(checkBoundary() || checkSnakeAteItself()){
 				clearInterval(state.gameInterval);
+				if(state.score > state.highscore) {
+					state.highscore = state.score;
+					renderScore();
+				}
 			} else {
 				buildBoard();
 				renderBoard();
 			}
-		}, 167);
+		}, 50);
 	}
 
-	if((event.key === "w" || event.key == "ArrowUp") && state.snake.nextDirection[0] !== 1) {
-		state.snake.nextDirection = [-1, 0];
-	} else if ((event.key === "a" || event.key == "ArrowLeft") && state.snake.nextDirection[1] !== 1) {
-		state.snake.nextDirection = [0, -1];
-	} else if ((event.key === "s" || event.key == "ArrowDown") && state.snake.nextDirection[0] !== -1) {
-		state.snake.nextDirection = [1, 0];
-	} else if ((event.key === "d" || event.key == "ArrowRight") && state.snake.nextDirection[1] !== -1) {
-		state.snake.nextDirection = [0, 1];
+	if(!state.keyPressed) {
+		if ((event.key === "w" || event.key == "ArrowUp") && state.snake.nextDirection[0] !== 1) {
+			state.snake.nextDirection = [-1, 0];
+		} else if ((event.key === "a" || event.key == "ArrowLeft") && state.snake.nextDirection[1] !== 1) {
+			state.snake.nextDirection = [0, -1];
+		} else if ((event.key === "s" || event.key == "ArrowDown") && state.snake.nextDirection[0] !== -1) {
+			state.snake.nextDirection = [1, 0];
+		} else if ((event.key === "d" || event.key == "ArrowRight") && state.snake.nextDirection[1] !== -1) {
+			state.snake.nextDirection = [0, 1];
+		}
+		state.keyPressed = true;
+	}
+
+	if(event.key === "r") {
+		handleReset();
 	}
 })
 
