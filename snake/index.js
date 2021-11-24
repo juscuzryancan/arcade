@@ -198,7 +198,7 @@ document.addEventListener("keydown", function(event) {
 				buildBoard();
 				renderBoard();
 			}
-		}, 1);
+		}, 167);
 	}
 
 	if(!state.keyPressed) {
