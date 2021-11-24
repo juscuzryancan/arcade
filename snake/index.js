@@ -35,9 +35,7 @@ function checkSnakeAteItself() {
 function checkBoundary() {
 	const {snake: {body}, board} = state;
 	const [snakeHeadRow, snakeHeadCol]  = body[0]
-	console.log("snake row", snakeHeadRow);
-	console.log("snake col", snakeHeadCol);
-	if (snakeHeadRow <= 0 || snakeHeadRow >= board.length || snakeHeadCol <= 0 || snakeHeadCol >= board.length) {
+	if (snakeHeadRow < 0 || snakeHeadRow > board.length - 1 || snakeHeadCol < 0 || snakeHeadCol > board.length - 1) {
 		return true;
 	}
 	return false;
@@ -78,6 +76,24 @@ function setSnakeInBoard() {
 		const currentSegmentColIndex = currentSnakeSegment[1];
 		state.board[currentSegmentRowIndex][currentSegmentColIndex] = "snake";
 	}
+}
+
+function createNewFood() {
+	let newCol, newRow;
+	do {
+		newCol = Math.floor(Math.random() * (state.board.length - 1));
+		newRow = Math.floor(Math.random() * (state.board.length - 1));
+	} while (isFoodASnakeTile([newCol, newRow]));
+	state.food = [newRow, newCol];
+}
+
+function isFoodASnakeTile(food) {
+	for(let i = 0; i < state.snake.body.length; i++) {
+		if(state.snake.body[i][0] === food[0] && state.snake.body[i][0] === food[0]) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function setFoodInBoard() {
@@ -164,12 +180,16 @@ document.addEventListener("keydown", function(event) {
 		state.gameInterval = setInterval(function () {
 			moveSnake();
 
+			if(checkFoodCollision()) {
+				createNewFood();
+			}
+
 			if(checkBoundary() || checkSnakeAteItself()){
 				clearInterval(state.gameInterval);
+			} else {
+				buildBoard();
+				renderBoard();
 			}
-			// checkSnakeAteItself();
-			buildBoard();
-			renderBoard();
 		}, 167);
 	}
 
