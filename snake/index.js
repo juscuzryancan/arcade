@@ -22,15 +22,9 @@ const snakeTitleElement = document.createElement("div");
 
 //Other functions
 
-function checkSnakeAteItself() {
-	const [snakeHeadRow, snakeHeadCol] = state.snake.body[0]
-	for(let i = 1; i < state.snake.body.length; i++) {
-		const [rowIdx, colIdx] = state.snake.body[i]
-		if(snakeHeadRow === rowIdx && snakeHeadCol === colIdx) {
-			return true;
-		}
-	}
-	return false;
+function checkSnakeAteItself(newHead) {
+	const [snakeHeadRow, snakeHeadCol] = newHead;
+	return (state.board[snakeHeadRow][snakeHeadCol] === 'snake');
 }
 
 function checkBoundary() {
@@ -106,6 +100,13 @@ function moveSnake() {
 	const snakeHead = state.snake.body[0];
 	const newSnakeHeadRowIdx = snakeHead[0] + state.snake.nextDirection[0] ;
 	const newSnakeHeadColIdx = snakeHead[1] + state.snake.nextDirection[1] ;
+	if (checkSnakeAteItself([newSnakeHeadRowIdx, newSnakeHeadColIdx])) {
+		clearInterval(state.gameInterval);
+		if (state.score > state.highscore) {
+			state.highscore = state.score;
+			renderScore();
+		}
+	}
 	state.snake.body.unshift([newSnakeHeadRowIdx, newSnakeHeadColIdx]);
 	if(!checkFoodCollision()) {
 		state.snake.body.pop();
@@ -188,7 +189,7 @@ document.addEventListener("keydown", function(event) {
 				renderScore();
 			}
 
-			if(checkBoundary() || checkSnakeAteItself()){
+			if(checkBoundary()){
 				clearInterval(state.gameInterval);
 				if(state.score > state.highscore) {
 					state.highscore = state.score;
