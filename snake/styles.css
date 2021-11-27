@@ -1,9 +1,19 @@
+#app {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
 .board {
 	display: grid;
 	grid-template-columns: repeat(20, 1fr); 
 	grid-template-rows: repeat(20, 1fr);
-	height: 500px;
-	width: 500px;
+	height: 700px;
+	width: 700px;
+}
+
+.inactive {
+	display: none;
 }
 
 .tile {

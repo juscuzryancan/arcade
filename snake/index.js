@@ -19,6 +19,7 @@ const boardElement = document.createElement("div");
 const scoreElement = document.createElement("div")
 const resetButton = document.createElement("BUTTON");
 const snakeTitleElement = document.createElement("div");
+const gameOverText = document.createElement("div");
 
 //Other functions
 
@@ -104,6 +105,7 @@ function moveSnake() {
 		clearInterval(state.gameInterval);
 		if (state.score > state.highscore) {
 			state.highscore = state.score;
+			gameOverText.classList.remove('inactive');
 			renderScore();
 		}
 	}
@@ -127,9 +129,13 @@ function bootstrap() {
 	resetButton.classList.add("reset");
 	resetButton.innerText = "Yo reset here"
 
+	gameOverText.innerText = "You Lost. Please Reset";
+	gameOverText.classList.add("inactive");
+
 	appElement.appendChild(snakeTitleElement);
 	appElement.appendChild(scoreElement);
 	appElement.appendChild(boardElement);
+	appElement.appendChild(gameOverText);
 	appElement.appendChild(resetButton);
 
 	buildBoard();	
@@ -194,6 +200,7 @@ document.addEventListener("keydown", function(event) {
 				if(state.score > state.highscore) {
 					state.highscore = state.score;
 					renderScore();
+					gameOverText.classList.remove('inactive');
 				}
 			} else {
 				buildBoard();
